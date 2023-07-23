@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container ml-auto">
     <h1 class="title">Register</h1>
     <b-form @submit.prevent="onRegister" @reset.prevent="onReset">
       <b-form-group
@@ -21,7 +21,55 @@
           Username length should be between 3-8 characters long
         </b-form-invalid-feedback>
         <b-form-invalid-feedback v-if="!$v.form.username.alpha">
-          Username alpha
+          Username should only contain letters
+        </b-form-invalid-feedback>
+      </b-form-group>
+      <b-form-group
+        id="input-group-firstname"
+        label-cols-sm="3"
+        label="First name:"
+        label-for="firstName"
+        invalid-feedback="First name is required"
+      >
+        <b-form-input
+          id="firstName"
+          v-model="$v.form.firstName.$model"
+          type="text"
+          :state="validateState('firstName')"
+        ></b-form-input
+      ></b-form-group>
+      <b-form-group
+        id="input-group-lastname"
+        label-cols-sm="3"
+        label="Last name:"
+        label-for="lastName"
+        invalid-feedback="Last name is required"
+      >
+        <b-form-input
+          id="lastName"
+          v-model="$v.form.lastName.$model"
+          type="text"
+          :state="validateState('lastName')"
+        ></b-form-input
+      ></b-form-group>
+
+      <b-form-group
+        id="input-group-email"
+        label-cols-sm="3"
+        label="Email:"
+        label-for="email"
+      >
+        <b-form-input
+          id="email"
+          v-model="$v.form.email.$model"
+          type="text"
+          :state="validateState('email')"
+        ></b-form-input>
+        <b-form-invalid-feedback v-if="!$v.form.email.required">
+          Email is required
+        </b-form-invalid-feedback>
+        <b-form-invalid-feedback v-else-if="!$v.form.email.email">
+          Invalid email address
         </b-form-invalid-feedback>
       </b-form-group>
 
@@ -37,9 +85,7 @@
           :options="countries"
           :state="validateState('country')"
         ></b-form-select>
-        <b-form-invalid-feedback>
-          Country is required
-        </b-form-invalid-feedback>
+        <b-form-invalid-feedback> Country is required </b-form-invalid-feedback>
       </b-form-group>
 
       <b-form-group
@@ -94,7 +140,7 @@
       <b-button
         type="submit"
         variant="primary"
-        style="width:250px;"
+        style="width: 250px"
         class="ml-5 w-75"
         >Register</b-button
       >
@@ -127,7 +173,7 @@ import {
   maxLength,
   alpha,
   sameAs,
-  email
+  email,
 } from "vuelidate/lib/validators";
 
 export default {
@@ -142,11 +188,11 @@ export default {
         password: "",
         confirmedPassword: "",
         email: "",
-        submitError: undefined
+        submitError: undefined,
       },
       countries: [{ value: null, text: "", disabled: true }],
       errors: [],
-      validated: false
+      validated: false,
     };
   },
   validations: {
@@ -154,20 +200,30 @@ export default {
       username: {
         required,
         length: (u) => minLength(3)(u) && maxLength(8)(u),
-        alpha
+        alpha,
       },
       country: {
-        required
+        required,
       },
       password: {
         required,
-        length: (p) => minLength(5)(p) && maxLength(10)(p)
+        length: (p) => minLength(5)(p) && maxLength(10)(p),
       },
       confirmedPassword: {
         required,
-        sameAsPassword: sameAs("password")
-      }
-    }
+        sameAsPassword: sameAs("password"),
+      },
+      firstName: {
+        required,
+      },
+      lastName: {
+        required,
+      },
+      email: {
+        required,
+        email,
+      },
+    },
   },
   mounted() {
     // console.log("mounted");
@@ -186,8 +242,13 @@ export default {
           this.$root.store.server_domain + "/Register",
 
           {
+            firstname: this.form.firstName,
+            lastname: this.form.lastName,
             username: this.form.username,
-            password: this.form.password
+            password: this.form.password,
+            email: this.form.email,
+            country: this.form.country,
+            profilePic: null,
           }
         );
         this.$router.push("/login");
@@ -214,17 +275,23 @@ export default {
         country: null,
         password: "",
         confirmedPassword: "",
-        email: ""
+        email: "",
       };
       this.$nextTick(() => {
         this.$v.$reset();
       });
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>
 .container {
   max-width: 500px;
+  padding: 30px 0;
+}
+.btn-primary {
+  color: #212529;
+  background-color: #c3e6cb;
+  border-color: #000;
 }
 </style>

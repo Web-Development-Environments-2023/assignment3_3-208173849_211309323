@@ -2,9 +2,12 @@ import Vue from "vue";
 import App from "./App.vue";
 import VueAxios from "vue-axios";
 import axios from "axios";
+import VueCookies from "vue-cookies";
 
+axios.defaults.withCredentials=true;
 import routes from "./routes";
 import VueRouter from "vue-router";
+Vue.use(VueCookies);
 Vue.use(VueRouter);
 const router = new VueRouter({
   routes,
@@ -14,6 +17,7 @@ import Vuelidate from "vuelidate";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 import {
+  BootstrapVue,
   FormGroupPlugin,
   FormPlugin,
   FormInputPlugin,
@@ -26,6 +30,7 @@ import {
   LayoutPlugin,
 } from "bootstrap-vue";
 [
+  BootstrapVue,
   FormGroupPlugin,
   FormPlugin,
   FormInputPlugin,
@@ -68,6 +73,7 @@ Vue.config.productionTip = false;
 
 const shared_data = {
   username: localStorage.username,
+  server_domain: "http://localhost:3000",
   login(username) {
     localStorage.setItem("username", username);
     this.username = username;
@@ -78,6 +84,7 @@ const shared_data = {
     localStorage.removeItem("username");
     this.username = undefined;
   },
+  
 };
 console.log(shared_data);
 // Vue.prototype.$root.store = shared_data;

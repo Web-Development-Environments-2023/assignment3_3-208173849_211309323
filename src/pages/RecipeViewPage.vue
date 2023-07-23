@@ -10,7 +10,11 @@
           <div class="wrapped">
             <div class="mb-3">
               <div>Ready in {{ recipe.readyInMinutes }} minutes</div>
+              <div>Servings: {{ recipe.servings }}</div>
               <div>Likes: {{ recipe.aggregateLikes }} likes</div>
+              <div v-if="recipe.glutenFree">Gluten free</div>
+              <div v-if="recipe.vegan">Vegan</div>
+              <div v-if="recipe.vegetarian">Vegeterian</div>
             </div>
             Ingredients:
             <ul>
@@ -45,31 +49,24 @@
 export default {
   data() {
     return {
-      recipe: null
+      recipe: null,
     };
   },
   async created() {
     try {
       let response;
-      // response = this.$route.params.response;
 
       try {
         response = await this.axios.get(
           // "https://test-for-3-2.herokuapp.com/recipes/info",
-          this.$root.store.server_domain + "/recipes/info",
-          {
-            params: { id: this.$route.params.recipeId }
-          }
+          `${this.$root.store.server_domain}/recipes/${this.$route.params.recipeId}`
         );
-
-        // console.log("response.status", response.status);
         if (response.status !== 200) this.$router.replace("/NotFound");
       } catch (error) {
         console.log("error.response.status", error.response.status);
         this.$router.replace("/NotFound");
         return;
       }
-
       let {
         analyzedInstructions,
         instructions,
@@ -77,8 +74,12 @@ export default {
         aggregateLikes,
         readyInMinutes,
         image,
-        title
-      } = response.data.recipe;
+        title,
+        vegan,
+        vegetarian,
+        glutenFree,
+        servings,
+      } = response.data;
 
       let _instructions = analyzedInstructions
         .map((fstep) => {
@@ -95,14 +96,33 @@ export default {
         aggregateLikes,
         readyInMinutes,
         image,
-        title
+        title,
+        vegan,
+        vegetarian,
+        glutenFree,
+        servings,
       };
 
       this.recipe = _recipe;
+      this.markAsWatched();
     } catch (error) {
       console.log(error);
     }
-  }
+  },
+  methods: {
+    markAsWatched() {
+      try {
+        const res = this.axios.post(
+          this.$root.store.server_domain + "/users/watched",
+          {
+            recipeId: this.$route.params.recipeId,
+          }
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    },
+  },
 };
 </script>
 

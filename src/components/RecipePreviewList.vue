@@ -1,13 +1,18 @@
 <template>
-  <b-container>
+  <b-container fluid>
     <h3>
       {{ title }}:
       <slot></slot>
     </h3>
     <b-row>
-      <b-col v-for="r in recipes" :key="r.id">
-        <RecipePreview class="recipePreview" :recipe="r" />
+      <b-col v-for="r in recipesList" :key="r.id">
+        <RecipePreview :recipe="r" />
       </b-col>
+    </b-row>
+    <b-row v-if="showButton">
+      <b-button variant="primary" id="randomButton" @click="getRecipes" class="ml-auto"
+        >More recipes</b-button
+      >
     </b-row>
   </b-container>
 </template>
@@ -17,45 +22,66 @@ import RecipePreview from "./RecipePreview.vue";
 export default {
   name: "RecipePreviewList",
   components: {
-    RecipePreview
+    RecipePreview,
   },
   props: {
     title: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
+    showButton: {
+      type: Boolean,
+      required: false,
+    },
+    recipesList: {
+      type: Array,
+      required: true,
+    },
+    fetchRecipes: {
+      type: Function,
+      required: false,
+    },
   },
-  data() {
-    return {
-      recipes: []
-    };
-  },
-  mounted() {
-    this.updateRecipes();
-  },
+  // data() {
+  //   return {
+  //     recipes: this.recipesList,
+  //   };
+  // },
+  // computed: {
+  //   getRecipesList() {
+  //     return this.recipesList;
+  //   },
+  // },
   methods: {
-    async updateRecipes() {
-      try {
-        const response = await this.axios.get(
-          this.$root.store.server_domain + "/recipes/random",
-          // "https://test-for-3-2.herokuapp.com/recipes/random"
-        );
-
-        // console.log(response);
-        const recipes = response.data.recipes;
-        this.recipes = [];
-        this.recipes.push(...recipes);
-        // console.log(this.recipes);
-      } catch (error) {
-        console.log(error);
+    getRecipes() {
+      if (this.showButton && typeof this.fetchRecipes === "function") {
+        this.fetchRecipes();
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .container {
-  min-height: 400px;
+  button {
+    z-index: 1;
+  }
 }
+.ShowButton {
+  background-color: #34dbbf; 
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px; 
+
+}
+#randomButton
+{
+  color: #000;
+  background-color: #c3e6cb;
+  border-color: #000;
+}
+
 </style>
+
